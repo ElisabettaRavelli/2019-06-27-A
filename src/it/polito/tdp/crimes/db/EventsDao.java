@@ -53,5 +53,132 @@ public class EventsDao {
 			return null ;
 		}
 	}
+	
+	public List<String> getCategoriaReato(){
+		String sql = "select distinct offense_category_id as categoria from events";
+		List<String> result = new ArrayList<>();
+		try {
+			Connection conn = DBConnect.getConnection() ;
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				try {
+					result.add(res.getString("categoria"));
+				} catch (Throwable t) {
+					t.printStackTrace();
+					System.out.println(res.getInt("id"));
+				}
+			}
+			
+			conn.close();
+			return result ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+	}
+	
+	public List<Integer> getAnno(){
+		String sql = "select distinct year(reported_date) as anno from events";
+		List<Integer> result = new ArrayList<>();
+		try {
+			Connection conn = DBConnect.getConnection() ;
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				try {
+					result.add(res.getInt("anno"));
+				} catch (Throwable t) {
+					t.printStackTrace();
+					System.out.println(res.getInt("id"));
+				}
+			}
+			
+			conn.close();
+			return result ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+	}
+	
+	public List<String> getOffenseId(String categoria, Integer anno){
+		String sql = "select distinct offense_type_id as id " + 
+				"from events " + 
+				"where year(reported_date) = ? " + 
+				"and offense_category_id = ? ";
+		List<String> result = new ArrayList<>();
+		try {
+			Connection conn = DBConnect.getConnection() ;
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			st.setInt(1, anno);
+			st.setString(2, categoria);
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				try {
+					result.add(res.getString("id"));
+				} catch (Throwable t) {
+					t.printStackTrace();
+					System.out.println(res.getInt("id"));
+				}
+			}
+			
+			conn.close();
+			return result ;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+	}
+	
+	public Double getConnessioni(String categoria, Integer anno, String id1, String id2) {
+		String sql = "select count(distinct(e1.district_id)) as peso " + 
+				"from events e1, events e2 " + 
+				"where year(e1.reported_date) = ? " + 
+				"and year(e2.reported_date) = ? " + 
+				"and e1.offense_category_id = ? " + 
+				"and e2.offense_category_id = ? " + 
+				"and e1.district_id = e2.district_id " + 
+				"and e1.offense_type_id = ? " + 
+				"and e2.offense_type_id = ? ";
+		try {
+			Connection conn = DBConnect.getConnection() ;
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			st.setInt(1, anno);
+			st.setInt(2, anno);
+			st.setString(3, categoria);
+			st.setString(4, categoria);
+			st.setString(5, id1);
+			st.setString(6, id2);
+			ResultSet res = st.executeQuery() ;
+			
+			if(res.next()) {
+				try {
+					Double peso = res.getDouble("peso");
+					conn.close();
+					return peso;
+				} catch (Throwable t) {
+					t.printStackTrace();
+					System.out.println(res.getInt("id"));
+				}
+			}
+			conn.close();
+			return null;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+	}
 
 }

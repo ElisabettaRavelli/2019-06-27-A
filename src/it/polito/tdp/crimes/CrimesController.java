@@ -7,6 +7,7 @@ package it.polito.tdp.crimes;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.ArcoPeso;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,10 +26,10 @@ public class CrimesController {
     private URL location;
 
     @FXML // fx:id="boxCategoria"
-    private ComboBox<?> boxCategoria; // Value injected by FXMLLoader
+    private ComboBox<String> boxCategoria; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAnno"
-    private ComboBox<?> boxAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalisi"
     private Button btnAnalisi; // Value injected by FXMLLoader
@@ -44,8 +45,21 @@ public class CrimesController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	txtResult.clear();
-    	txtResult.appendText("Crea grafo...\n");
+    	Integer anno = boxAnno.getValue();
+    	if(anno==null) {
+    		txtResult.appendText("Inserire un anno\n");
+    	}
+    	String categoria = boxCategoria.getValue();
+    	if(categoria==null) {
+    		txtResult.appendText("Inserire una categoria\n");
+    	}
+    	this.model.creaGrafo(categoria, anno);
+    	txtResult.appendText("Grafo creato con "+ this.model.getVertici()+ " vertici e con "+ this.model.getArchi()+ " archi\n");
+    	
+    	for(ArcoPeso ap: this.model.getPesoMax()) {
+    		txtResult.appendText(ap.toString()+ "\n");
+    	}
+    	
     }
 
     @FXML
@@ -67,5 +81,7 @@ public class CrimesController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	boxAnno.getItems().addAll(this.model.getAnno());
+    	boxCategoria.getItems().addAll(this.model.getCategoriaReato());
     }
 }
